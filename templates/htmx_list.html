@@ -1,0 +1,5 @@
+<ul>
+[[for ir in input_rows:]]
+    <li><a hx-get="[[=URL('htmx_form/%s' % ir.id)]]" hx-target="#htmx-form-demo">[[=ir.invoice_number]]</a></li>
+[[pass]]
+</ul>
