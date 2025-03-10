@@ -15,8 +15,8 @@ from py4web.utils.auth import Auth
 from py4web.utils.downloader import downloader
 from py4web.utils.factories import ActionFactory
 from py4web.utils.mailer import Mailer
-from py4web.utils.form import Form, FormStyleBulma
-from py4web.utils.grid import Grid, GridClassStyleBulma
+from py4web.utils.form import Form, FormStyleBulma, FormStyleDefault    
+from py4web.utils.grid import Grid, GridClassStyleBulma, GridClassStyle
 
 from . import settings
 
@@ -246,5 +246,6 @@ authenticated = ActionFactory(db, session, T, flash, auth.user)
 # Set today
 # #######################################################
 today = datetime.date.today()
-GRID_DEFAULTS = dict(formstyle=FormStyleBulma, grid_class_style=GridClassStyleBulma)
+#GRID_DEFAULTS = dict(formstyle=FormStyleBulma, grid_class_style=GridClassStyleBulma)
+GRID_DEFAULTS = dict(formstyle=FormStyleDefault, grid_class_style=GridClassStyle)
 

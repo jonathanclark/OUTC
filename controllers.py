@@ -1,9 +1,11 @@
+import datetime
 from decimal import Decimal
 from py4web import action, redirect, request, URL, Field
 from py4web.utils.grid import Grid, Column
 
 from py4web.utils.form import Form
 from pydal.validators import *
+from yatl.helpers import *
 from .common import (
     T,
     auth,
@@ -81,3 +83,38 @@ def update_form(input_row_id):
     form = Form(db.input_rows, input_row_id)
     rows = db(db.input_rows).select()
     return dict(form=form, rows=rows)
+
+# ####################################
+# htmx demo follows
+
+@action("htmx_form_demo", method=["GET", "POST"])
+@action.uses("htmx_form_demo.html")
+def htmx_form_demo():
+    return dict(timestamp=datetime.datetime.now())
+
+
+@action("htmx_list", method=["GET", "POST"])
+@action.uses("htmx_list.html", db)
+def htmx_list():
+    input_rows = db(db.input_rows.id > 0).select()
+    return dict(input_rows=input_rows)
+
+
+@action("htmx_form/<record_id>", method=["GET", "POST"])
+@action.uses("htmx_form.html", db)
+def htmx_form(record_id=None):
+    attrs = {
+        "_hx-post": URL("htmx_form/%s" % record_id),
+        "_hx-target": "#htmx-form-demo",
+    }
+    form = Form(db.input_rows, record=db.input_rows(record_id), **attrs)
+    if form.accepted:
+        redirect(URL("htmx_list"))
+
+    cancel_attrs = {
+        "_hx-get": URL("htmx_list"),
+        "_hx-target": "#htmx-form-demo",
+    }
+    form.param.sidecar.append(A("Cancel", **cancel_attrs))
+
+    return dict(form=form)
