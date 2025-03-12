@@ -52,11 +52,13 @@ def load_clubs():
     """
     python -c "from apps.OUTC.data_utils import load_clubs; load_clubs()"
     """
-    for club_name in ['Unicorn', 'OUTC']:
+    for club_name in ["Unicorn", "OUTC"]:
         if db(db.clubs.name == club_name).count() == 0:
             db.clubs.insert(name=club_name)
 
     db.commit()
+
+    print("There are now %d lines in clubs" % db(db.clubs.id > 0).count())
 
 
 def load_contacts(input_file="jc_active_members.csv"):
@@ -69,13 +71,15 @@ def load_contacts(input_file="jc_active_members.csv"):
         for row in reader:
             # breakpoint()
             if member_types[row[3]] in ["OUTC", "Unicorn"]:
-                clubs_id = db(db.clubs.name==member_types[row[3]]).select().first().id
+                clubs_id = db(db.clubs.name == member_types[row[3]]).select().first().id
                 db.contacts.insert(
                     reference=row[0],
                     name=" ".join([row[1], row[2]]),
                     club=clubs_id,
                 )
     db.commit()
+
+    print("There are now %d lines in contacts" % db(db.contacts.id > 0).count())
 
 
 def load_coa(input_file="ChartOfAccountsOTC.csv"):
@@ -87,28 +91,17 @@ def load_coa(input_file="ChartOfAccountsOTC.csv"):
         next(reader)
         for row in reader:
             # breakpoint()
-            #print(row)
+            # print(row)
             key = db.coa.insert(
                 code=row[0],
                 description=row[1],
                 type=row[2],
                 tax_code=[3],
             )
-            #print(key)
+            # print(key)
     db.commit()
 
     print("There are now %d lines in the coa" % db(db.coa.id > 0).count())
-
-
-def export_all_tables(csv_file):
-    with open(csv_file, "w", encoding="utf-8", newline="") as dumpfile:
-        db.export_to_csv_file(dumpfile)
-
-
-def import_all_tables(csv_file):
-    with open(csv_file, "r", encoding="utf-8", newline="") as dumpfile:
-        db.import_from_csv_file(dumpfile)
-        db.commit()
 
 
 def clean_all_tables():
@@ -116,6 +109,13 @@ def clean_all_tables():
     for t in db.tables():
         db[t].truncate()
         db.commit()
+
+
+def load_all_tables():
+    print("Load all tables")
+    load_clubs()
+    load_contacts()
+    load_coa()
 
 
 def init_auth_user():
@@ -132,3 +132,14 @@ def init_auth_user():
             },
         ]
     )
+
+
+def export_all_tables(csv_file):
+    with open(csv_file, "w", encoding="utf-8", newline="") as dumpfile:
+        db.export_to_csv_file(dumpfile)
+
+
+def import_all_tables(csv_file):
+    with open(csv_file, "r", encoding="utf-8", newline="") as dumpfile:
+        db.import_from_csv_file(dumpfile)
+        db.commit()

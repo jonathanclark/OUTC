@@ -28,24 +28,31 @@ db.define_table(
 
 db.define_table(
     "input_rows",
-    Field("invoice_number", length=12),
-    Field(
-        "invoice_date",
-        #requires=IS_DATE(),
-        #represent=lambda x: parse(x).strftime("%m/%d/%Y")
-        #if x and isinstance(x, str)
-        #else "",
-
-        default=today,
-        #required=True,
-    ),
     Field(
         "member",
         "reference contacts",
         length=25,
-        required=True,
-        requires=IS_IN_DB(db, "contacts.id", "%(name)s", zero="...."),
-        represent=lambda c: " ".join([c.name, c.reference]) if c else "N/A",
+        requires=IS_IN_DB(db, "contacts.id", "%(name)s"),
+        filter_out=lambda x: x.name if x else '',
+        #represent=lambda row: row.name if row else "N/A",
+        #represent=lambda c: " ".join([c.name, c.reference]) if c else "N/A",
+    ),
+    Field(
+        "account",
+        "reference coa",
+        requires=IS_IN_DB(db, "coa.id", "%(description)s", zero="...."),
+        filter_out=lambda x: x.description if x else '',
+    ),
+    Field("invoice_number", length=12),
+    Field(
+        "invoice_date",
+        "date",
+        requires=IS_DATE(),
+        # represent=lambda x: parse(x).strftime("%m/%d/%Y")
+        # if x and isinstance(x, str)
+        # else "",
+        default=today,
+        # required=True,
     ),
     # Field('due_date'),
     # Field('account_code', 'reference coa'),

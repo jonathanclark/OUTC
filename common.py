@@ -246,6 +246,5 @@ authenticated = ActionFactory(db, session, T, flash, auth.user)
 # Set today
 # #######################################################
 today = datetime.date.today()
-#GRID_DEFAULTS = dict(formstyle=FormStyleBulma, grid_class_style=GridClassStyleBulma)
-GRID_DEFAULTS = dict(formstyle=FormStyleDefault, grid_class_style=GridClassStyle)
+GRID_DEFAULTS = dict(formstyle=FormStyleBulma, grid_class_style=GridClassStyleBulma)
 

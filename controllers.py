@@ -45,6 +45,7 @@ def form():
     # redirect(URL("form"))
     return dict(form=form)
 
+
 ##### grid doesn't look best ########
 @action("batch_input", method=["POST", "GET"])
 @action("batch_input/<path:path>", method=["POST", "GET"])
@@ -58,17 +59,16 @@ def batch_input(path=None):
     grid = Grid(
         path,
         query=db_query,
-        columns=[
-            db.input_rows.invoice_number,
-            db.input_rows.invoice_date,
-            db.contacts.name,
+        details=False,
+        left=[
+            db.contacts.on(db.input_rows.member==db.contacts.id),
+            db.coa.on(db.input_rows.account == db.coa.id),
         ],
-        left=[db.contacts.on(db.input_rows.member == db.contacts.id)],
-        headings=["Member", "Invoice Num", "Invoice Date"],
         **GRID_DEFAULTS,
     )
 
     return dict(grid=grid)
+
 
 @action("create_form", method=["GET", "POST"])
 @action.uses("form_basic.html", db)
@@ -77,6 +77,7 @@ def create_form():
     rows = db(db.input_rows).select()
     return dict(form=form, rows=rows)
 
+
 @action("update_form/<input_row_id:int>", method=["GET", "POST"])
 @action.uses("form_basic.html", db)
 def update_form(input_row_id):
@@ -84,8 +85,10 @@ def update_form(input_row_id):
     rows = db(db.input_rows).select()
     return dict(form=form, rows=rows)
 
+
 # ####################################
 # htmx demo follows
+
 
 @action("htmx_form_demo", method=["GET", "POST"])
 @action.uses("htmx_form_demo.html")
