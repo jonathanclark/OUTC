@@ -1,10 +1,91 @@
 [[extend 'outc_layout.html']]
 
+<flash-alerts class="padded" data-alert="[[=globals().get('flash','')]]"></flash-alerts>
+
 <div class="section">
-  <div class="vars">
+  <div class="box">
+    <h4 class="subtitle is-4 has-text-primary">Input form</h4>
     [[=form]]
   </div>
-  <div class="vars">
+  <div class="box">
+    [[if rows:]]
+    <h4 class="subtitle is-4 has-text-primary">Input records</h4>
+    <div class='buttons'>
+      <a id='download_button'
+	 class='button is-link' 
+	 href='[[=URL('save_csv')]]'>
+	Download
+      </a>
+      <a id='upload_button'
+	 class='button is-link'
+	 >
+	 Upload
+      </a> 
+	<a id='clear_rows'
+	   class='button is-danger'
+	   href='[[=URL('index','clear')]]'>
+	  Clear all rows below!
+	</a>
+    </div>
+    <div class="table-container">
+      <table class='table is-size-7'>
+	<tr>
+	  <th>ContactName</th>
+	  <th>Reference</th>
+	  <th>InvoiceNumber</th>
+	  <th>InvoiceDate</th>
+	  <th>DueDate</th>
+	  <th>Description</th>
+	  <th>Quantity</th>
+	  <th>UnitAmount</th>
+	  <th>AccountCode</th>
+	  <th>TaxType</th>
+	  <th>TrackingName1</th>
+	  <th>TrackingOption1</th>
+	</tr>
+	[[for row in rows:]]
+	<tr>
+	  <td>
+	    [[ =row['ContactName'] ]]
+	  </td>
+	  <td>
+	    [[ =row['Reference'] ]]
+	  </td>
+	  <td>
+	    [[ =row['InvoiceNumber'] ]]
+	  </td>
+	  <td>
+	    [[ =row['InvoiceDate'] ]]
+	  </td>
+	  <td>
+	    [[ =row['DueDate'] ]]
+	  </td>
+	  <td>
+	    [[ =row['Description'] ]]
+	  </td>
+	  <td>
+	    [[ =row['Quantity'] ]]
+	  </td>
+	  <td>
+	    [[ =row['UnitAmount'] ]]
+	  </td>
+	  <td>
+	    [[ =row['AccountCode'] ]]
+	  </td>
+	  <td>
+	    [[ =row['TaxType'] ]]
+	  </td>
+	  <td>
+	    [[ =row['TrackingName1'] ]]
+	  </td>
+	  <td>
+	    [[ =row['TrackingOption1'] ]]
+	  </td>
+	  [[pass]]
+	</tr>
+	[[pass]]
+      </table>
+    </div>
 
 
   </div>

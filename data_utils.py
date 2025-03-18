@@ -73,7 +73,7 @@ def load_contacts(input_file="jc_active_members.csv"):
             if member_types[row[3]] in ["OUTC", "Unicorn"]:
                 clubs_id = db(db.clubs.name == member_types[row[3]]).select().first().id
                 db.contacts.insert(
-                    reference=row[0],
+                    sageid=row[0],
                     name=" ".join([row[1], row[2]]),
                     club=clubs_id,
                 )
@@ -96,7 +96,7 @@ def load_coa(input_file="ChartOfAccountsOTC.csv"):
                 code=row[0],
                 description=row[1],
                 type=row[2],
-                tax_code=[3],
+                tax_code=row[3],
             )
             # print(key)
     db.commit()
@@ -143,3 +143,37 @@ def import_all_tables(csv_file):
     with open(csv_file, "r", encoding="utf-8", newline="") as dumpfile:
         db.import_from_csv_file(dumpfile)
         db.commit()
+
+
+# #################################
+# utility functions
+
+
+def input_row_to_dict(row):
+    """covert row to r and return r
+
+    r is just a dict, used in form and when writing csv
+    """
+
+    r = dict()
+    r["ContactName"] = row.member.name
+    r["Reference"] = row.member.sageid
+    r["InvoiceNumber"] = row.invoice_number
+    r["InvoiceDate"] = row.invoice_date
+    r["DueDate"] = row.due_date
+    if row.extra_description:
+        r["Description"] = ", ".join(
+            [
+                row.account.description,
+                row.extra_description,
+            ]
+        )
+    else:
+        r["Description"] = row.account.description
+    r["Quantity"] = row.quantity
+    r["UnitAmount"] = row.price
+    r["AccountCode"] = row.account.code
+    r["TaxType"] = row.account.tax_code
+    r["TrackingName1"] = "Club"
+    r["TrackingOption1"] = row.member.club.name
+    return r

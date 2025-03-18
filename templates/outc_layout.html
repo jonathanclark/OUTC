@@ -1,33 +1,36 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" />
+    <base href="[[=URL('static')]]/">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base href="[[=URL('static/')]]">
+    <meta charset="utf-8" />
 
     <title>OUTC batch input
     </title>
 
-    <link rel="stylesheet" href="static/css/bulma.min.css">
+    <link rel="stylesheet" href="css/bulma.min.css">
     <script src="https://kit.fontawesome.com/1dec05b94f.js" crossorigin="anonymous"></script>
 
 
 
-    </head>
+  </head>
 
-    <body>
+  <body>
 
-      <h1 class="title is-3 box">OUTC Batch Input</h1>
-
-
-      <main>
-
-	<!-- content injected by extending page -->
-	[[include]]
-
-      </main>
-      <!-- end of HTML inserted by extending template -->
+    <h1 class="title is-3 box">OUTC Batch Input</h1>
 
 
-    </body>
-</html>
+    <main class="padded">
+      <flash-alerts class="padded" data-alert="[[=globals().get('flash','')]]"></flash-alerts>
+
+      <!-- content injected by extending page -->
+      [[include]]
+
+    </main>
+    <!-- end of HTML inserted by extending template -->
+
+
+  </body>
+  <!-- You've gotta have utils.js -->
+  <script src="js/utils.js"></script>
+  </html>

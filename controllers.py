@@ -1,12 +1,19 @@
+import csv
 import datetime
 from decimal import Decimal
-from py4web import action, redirect, request, URL, Field
-from py4web.utils.grid import Grid, Column
+from io import StringIO
 
+from py4web import URL, Field, Flash, abort, action, redirect, request, response
 from py4web.utils.form import Form
+from py4web.utils.grid import Column, Grid
+
+# from py4web.utils.factories import Inject
 from pydal.validators import *
 from yatl.helpers import *
+from yatl.helpers import A
+
 from .common import (
+    GRID_DEFAULTS,
     T,
     auth,
     authenticated,
@@ -16,34 +23,54 @@ from .common import (
     logger,
     session,
     unauthenticated,
-    GRID_DEFAULTS,
 )
+from .data_utils import input_row_to_dict
+
+
+@action("old-index")
+@action.uses("index.html", flash, auth, T)
+def index():
+    flash.set("Hello World", _class="error", sanitize=True)
+    user = auth.get_user()
+    message = T("Hello {first_name}").format(**user) if user else T("Hello")
+    return dict(message=message)
 
 
 @action("index", method=["GET", "POST"])
-@action.uses("index.html")
-def index():
-    form = Form(db.input_rows)
-    rows = db(db.input_rows).select()
-    return dict(form=form, rows=rows)
+@action("index/<action:path>", method=["GET", "POST"])
+@action.uses(
+    "form.html",
+    session,
+    db,
+    flash,
+)
+def form(action=None):
+    db.input_rows.member.requires = IS_IN_DB(
+        db, "contacts.id", "%(name)s", zero=T("choose one")
+    )
+    db.input_rows.account.requires = IS_IN_DB(
+        db, "coa.id", "%(description)s", zero=T("choose one")
+    )
+    if action=='clear':
+        print("Action is clear")
 
-
-@action("form", method=["GET", "POST"])
-@action.uses("form.html")
-def form():
-    fields = [
-        Field("contact_name", requires=IS_NOT_EMPTY(), length=25),
-        Field("invoice_date", requires=IS_NOT_EMPTY(), type="date"),
-        Field("invoice_number", requires=IS_NOT_EMPTY(), length=12),
-    ]
-
-    form = Form(fields)
+    form = Form(db.input_rows, keep_values=True)
+    rows = db(db.input_rows.down_loaded == False).select(orderby=~db.input_rows.id)
+    # print(f"We have {len(rows)} rows in the database to deal with")
+    rows = [input_row_to_dict(r) for r in rows]
+    # print(f"We now have {len(rows)} rows in the list of dicts to deal with")
+    message = ""
     if form.accepted:
-        print(form.vars)
+        flash = {
+            "message": "Input line has been added",
+            "class": "info",
+        }
+        # print(form.vars)
+        pass
     else:
-        print(form)
-    # redirect(URL("form"))
-    return dict(form=form)
+        # print("error")
+        pass
+    return dict(form=form, rows=rows, message=message)
 
 
 ##### grid doesn't look best ########
@@ -61,7 +88,7 @@ def batch_input(path=None):
         query=db_query,
         details=False,
         left=[
-            db.contacts.on(db.input_rows.member==db.contacts.id),
+            db.contacts.on(db.input_rows.member == db.contacts.id),
             db.coa.on(db.input_rows.account == db.coa.id),
         ],
         **GRID_DEFAULTS,
@@ -121,3 +148,38 @@ def htmx_form(record_id=None):
     form.param.sidecar.append(A("Cancel", **cancel_attrs))
 
     return dict(form=form)
+
+
+@action("save_csv", method=["GET"])
+@action.uses(
+    db,
+    session,
+)
+def save_csv():
+    stream = StringIO()
+    content_type = "text/csv"
+    filename = "batch_input.csv"
+    response.headers["Content-Type"] = content_type
+    response.headers["Content-disposition"] = f'attachment; filename="{filename}"'
+    rows = db(db.input_rows.down_loaded == False).select(orderby=~db.input_rows.id)
+    rows_dict = [input_row_to_dict(r) for r in rows]
+    field_names = [
+        "ContactName",
+        "Reference",
+        "InvoiceNumber",
+        "InvoiceDate",
+        "DueDate",
+        "Description",
+        "Quantity",
+        "UnitAmount",
+        "AccountCode",
+        "TaxType",
+        "TrackingName1",
+        "TrackingOption1",
+    ]
+
+    writer = csv.DictWriter(stream, fieldnames=field_names)
+    writer.writeheader()
+    for rd in rows_dict:
+        writer.writerow(rd)
+    return XML(stream.getvalue())

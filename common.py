@@ -92,6 +92,7 @@ auth.fix_actions()
 
 flash = auth.flash
 
+
 # #######################################################
 # Configure email sender for auth
 # #######################################################
@@ -237,9 +238,9 @@ auth.enable(uses=(session, T, db), env=dict(T=T))
 # add them like this: @authenticated(uses=[extra_fixture])
 # #######################################################
 unauthenticated = ActionFactory(db, session, T, flash, auth)
-
-
 authenticated = ActionFactory(db, session, T, flash, auth.user)
+
+
 
 
 # #######################################################
