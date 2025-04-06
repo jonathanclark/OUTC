@@ -9,6 +9,8 @@ Items
 * make form the default first page i.e. put form fn into index
 * button for download (plus separate input from list of rows a bit)
 * buttons per line for edit and delete
-* get running on opalstack
+* get running on opalstack - use password RealTennis
 * get upload working 
-*
+* !!!! get git working between opal and desktop
+  Had to get code across in a zip file!!!
+
