@@ -11,6 +11,7 @@ from decimal import Decimal
 db.define_table(
     "clubs",
     Field("name", length=8, unique=True),
+    format='%(name)s',
 )
 
 db.define_table(
@@ -28,7 +29,7 @@ db.define_table(
     Field("type", length=20),
     Field("tax_code", length=6, 
           default='No VAT'),
-    format='%(description)s',
+    format='%(code) (description)s',
 )
 
 db.define_table(
