@@ -29,7 +29,7 @@ db.define_table(
     Field("type", length=20),
     Field("tax_code", length=6, 
           default='No VAT'),
-    format='%(code) (description)s',
+    format='%(description)s',
 )
 
 db.define_table(
