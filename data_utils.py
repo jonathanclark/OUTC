@@ -61,7 +61,7 @@ def load_clubs():
     print("There are now %d lines in clubs" % db(db.clubs.id > 0).count())
 
 
-def load_contacts(input_file="jc_active_members.csv"):
+def load_contacts(input_file="apps/OUTC/jc_active_members.csv"):
     """
     python -c 'from apps.OUTC.data_utils import load_contacts; load_contacts()'
     """
@@ -77,12 +77,27 @@ def load_contacts(input_file="jc_active_members.csv"):
                     name=" ".join([row[1], row[2]]),
                     club=clubs_id,
                 )
+        # Now do extra accounts not from MDB
+        outc_id = db(db.clubs.name == 'OUTC').select().first().id
+        for account in [
+                ('BLUES', 'Blues', outc_id),
+                ('JUNIORS', 'Juniors', outc_id),
+                ('SUBL', 'Subsidy L', outc_id),
+                ('TOUR', 'Tournaments', outc_id),
+                ('ZVIS', 'Visitors', outc_id)
+                ]:
+            db.contacts.insert(
+                    sageid=account[0],
+                    name=account[1],
+                    club=outc_id,
+                    )
+
     db.commit()
 
     print("There are now %d lines in contacts" % db(db.contacts.id > 0).count())
 
 
-def load_coa(input_file="ChartOfAccountsOTC.csv"):
+def load_coa(input_file="apps/OUTC/ChartOfAccountsOTC.csv"):
     """
     python -c 'from apps.OUTC.data_utils import load_coa; load_coa()'
     """
@@ -116,6 +131,10 @@ def load_all_tables():
     load_clubs()
     load_contacts()
     load_coa()
+
+def reset_tables():
+    clean_all_tables()
+    load_all_tables()
 
 
 def init_auth_user():

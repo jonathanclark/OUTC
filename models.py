@@ -17,7 +17,7 @@ db.define_table(
     "contacts",
     Field("sageid", length=9, unique=True),
     Field("name", length=25),
-    Field("club", db.clubs),
+    Field("club", 'reference clubs'),
     format='%(name)s',
 )
 
@@ -26,7 +26,8 @@ db.define_table(
     Field("code", length=6, unique=True),
     Field("description", length=33),
     Field("type", length=20),
-    Field("tax_code", length=3),
+    Field("tax_code", length=6, 
+          default='No VAT'),
     format='%(description)s',
 )
 
@@ -35,7 +36,6 @@ db.define_table(
     Field(
         "member",
         db.contacts,
-        length=25,
     ),
     Field(
         "account",

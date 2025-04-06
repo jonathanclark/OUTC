@@ -90,7 +90,7 @@ auth.param.default_login_enabled = settings.DEFAULT_LOGIN_ENABLED
 auth.define_tables()
 auth.fix_actions()
 
-flash = auth.flash
+flash = Flash()
 
 
 # #######################################################

@@ -1,10 +1,10 @@
 [[extend 'outc_layout.html']]
 
-<flash-alerts class="padded" data-alert="[[=globals().get('flash','')]]"></flash-alerts>
 
 <div class="section">
   <div class="box">
     <h4 class="subtitle is-4 has-text-primary">Input form</h4>
+    <flash-alerts class="padded" data-alert="[[=globals().get('flash','')]]"></flash-alerts>
     [[=form]]
   </div>
   <div class="box">
@@ -16,77 +16,102 @@
 	 href='[[=URL('save_csv')]]'>
 	Download
       </a>
+      <!--
       <a id='upload_button'
 	 class='button is-link'
 	 >
 	 Upload
-      </a> 
+      </a>
+      -->
+      <!--
 	<a id='clear_rows'
 	   class='button is-danger'
 	   href='[[=URL('index','clear')]]'>
 	  Clear all rows below!
 	</a>
+      -->
     </div>
+
+
+
     <div class="table-container">
       <table class='table is-size-7'>
 	<tr>
+	  <th></th>
+	  <th></th>
 	  <th>ContactName</th>
 	  <th>Reference</th>
-	  <th>InvoiceNumber</th>
-	  <th>InvoiceDate</th>
-	  <th>DueDate</th>
+	  <!--
+	    #<th>InvoiceNumber</th>
+	    #<th>InvoiceDate</th>
+	    #<th>DueDate</th>
+	  -->
 	  <th>Description</th>
 	  <th>Quantity</th>
 	  <th>UnitAmount</th>
 	  <th>AccountCode</th>
 	  <th>TaxType</th>
-	  <th>TrackingName1</th>
+	  <!--
+	    #<th>TrackingName1</th>
+	  -->
 	  <th>TrackingOption1</th>
 	</tr>
 	[[for row in rows:]]
 	<tr>
 	  <td>
-	    [[ =row['ContactName'] ]]
+	    [[ 
+	    =A(XML('edit', I('&nbsp;', _class="fas fa-edit")), _href=URL('edit', str(row.id)), _class="grid-edit-button button is-small")
+	    ]]
 	  </td>
 	  <td>
-	    [[ =row['Reference'] ]]
+	    [[ 
+	    =A(XML('delete', I('&nbsp;', _class="fas fa-trash")), _href=URL('delete', str(row.id)), _class="grid-delete-button button is-small") ]]
 	  </td>
 	  <td>
-	    [[ =row['InvoiceNumber'] ]]
+	    [[ =row.member.name ]]
 	  </td>
 	  <td>
-	    [[ =row['InvoiceDate'] ]]
+	    [[ =row.member.sageid ]]
+	  </td>
+	  <!--
+	    <td>
+	    [[ #=row['InvoiceNumber'] ]]
+	    </td>
+	    <td>
+	    [[ #=row['InvoiceDate'] ]]
+	    </td>
+	    <td>
+	    [[ #=row['DueDate'] ]]
+	    </td>
+	  -->
+	  <td>
+	    [[ #= ", ".join([row.account.description, row.extra_description]) ]]
 	  </td>
 	  <td>
-	    [[ =row['DueDate'] ]]
+	    [[ =row.quantity ]]
 	  </td>
 	  <td>
-	    [[ =row['Description'] ]]
+	    [[ =row.price ]]
 	  </td>
 	  <td>
-	    [[ =row['Quantity'] ]]
+	    [[ =row.account.code ]]
 	  </td>
 	  <td>
-	    [[ =row['UnitAmount'] ]]
+	    [[ =row.account.tax_code ]]
 	  </td>
+	  <!--
+	    <td>
+	    [[ #=row['TrackingName1'] ]]
+	    </td>
+	  -->
 	  <td>
-	    [[ =row['AccountCode'] ]]
-	  </td>
-	  <td>
-	    [[ =row['TaxType'] ]]
-	  </td>
-	  <td>
-	    [[ =row['TrackingName1'] ]]
-	  </td>
-	  <td>
-	    [[ =row['TrackingOption1'] ]]
+	    [[ =row.member.club.name ]]
 	  </td>
 	  [[pass]]
 	</tr>
-	[[pass]]
       </table>
     </div>
 
-
+    [[pass]]
   </div>
 </div>
