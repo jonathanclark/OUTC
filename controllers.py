@@ -94,7 +94,7 @@ def form(action=None):
         db, "contacts.id", "%(name)s", zero=T("choose one")
     )
     db.input_rows.account.requires = IS_IN_DB(
-        db, "coa.id", "%(description)s", zero=T("choose one")
+        db, "coa.id", "%(code)s %(description)s", zero=T("choose one")
     )
     db.input_rows.invoice_number.readable = db.input_rows.invoice_number.writable = False
     db.input_rows.invoice_date.readable = db.input_rows.invoice_date.writable = False
