@@ -41,12 +41,11 @@ from .data_utils import input_row_to_dict
     ),
 )
 def delete(record=None):
-    message = ''
+    message = ""
     if record:
-        db(db.input_rows.id==record).delete()
+        db(db.input_rows.id == record).delete()
         db.commit()
     redirect(URL("index"))
-        
 
 
 @action("edit/<record_id:int>", method=["GET", "POST"])
@@ -62,15 +61,17 @@ def delete(record=None):
     ),
 )
 def edit(record_id):
-    message = ''
-    db.input_rows.invoice_number.readable = db.input_rows.invoice_number.writable = False
+    message = ""
+    db.input_rows.invoice_number.readable = db.input_rows.invoice_number.writable = (
+        False
+    )
     db.input_rows.invoice_date.readable = db.input_rows.invoice_date.writable = False
     db.input_rows.due_date.readable = db.input_rows.due_date.writable = False
 
     form = Form(db.input_rows, record_id)
     if form.accepted:
         flash.set("record updated")
-        redirect(URL('index'))
+        redirect(URL("index"))
     return dict(form=form, message=message)
 
 
@@ -87,16 +88,20 @@ def edit(record_id):
         menu_structure=menu_structure,
     ),
 )
-def form(action=None):
-    message = ''
-    #make the form
+def index(action=None):
+    message = ""
+    # make the form
     db.input_rows.member.requires = IS_IN_DB(
         db, "contacts.id", "%(name)s", zero=T("choose one")
     )
     db.input_rows.account.requires = IS_IN_DB(
         db, "coa.id", "%(code)s %(description)s", zero=T("choose one")
     )
-    db.input_rows.invoice_number.readable = db.input_rows.invoice_number.writable = False
+    db.input_rows.description_datetime.requires = IS_EMPTY_OR(IS_DATETIME())
+
+    db.input_rows.invoice_number.readable = db.input_rows.invoice_number.writable = (
+        False
+    )
     db.input_rows.invoice_date.readable = db.input_rows.invoice_date.writable = False
     db.input_rows.due_date.readable = db.input_rows.due_date.writable = False
 
@@ -104,19 +109,30 @@ def form(action=None):
 
     # make the rows
     rows = db(db.input_rows.down_loaded == False).select(orderby=~db.input_rows.id)
-    # print(f"We have {len(rows)} rows in the database to deal with")
-    # rows = [input_row_to_dict(r) for r in rows]
-    # print(f"We now have {len(rows)} rows in the list of dicts to deal with")
-    if action == 'clear':
-        flash.set("The Clear all rows button doesn't do anything yet",
-                  _class="error", sanitize = True)
-    
+
+    # adjust account.description field to hold extra text fields - description_date_time, _text
+    for r in rows:
+        prefix = suffix = ''
+        if r.description_datetime:
+            prefix = str(r.description_datetime)+':'
+        if r.description_text:
+            suffix = ' - ' + r.description_text
+        total_description = " ".join([prefix, r.account.description, suffix])
+        r.account.description = total_description
+
+    if action == "clear":
+        flash.set(
+            "The Clear all rows button doesn't do anything yet",
+            _class="error",
+            sanitize=True,
+        )
+
     if form.accepted:
         flash.set("Record added", _class="error", sanitize=True)
         pass
-    #print('here come rows')
-    #for r in rows:
-    #    print(r)
+    print("here come rows")
+    for r in rows:
+        print(r)
     return dict(form=form, rows=rows, message=message)
 
 
@@ -168,7 +184,7 @@ def contacts(path=None):
         query=db_query,
         details=False,
         left=[
-            #db.clubs.on(db.contacts.club == db.clubs.id),
+            # db.clubs.on(db.contacts.club == db.clubs.id),
             db.clubs.on(db.contacts.club == db.clubs.id),
         ],
         search_queries=[
@@ -211,7 +227,7 @@ def save_csv():
     writer = csv.DictWriter(stream, fieldnames=field_names)
     writer.writeheader()
     for rd in rows_dict:
-        #print(rd)
+        # print(rd)
         writer.writerow(rd)
     return XML(stream.getvalue())
 
@@ -244,5 +260,3 @@ def batch_input(path=None):
     )
 
     return dict(grid=grid)
-
-

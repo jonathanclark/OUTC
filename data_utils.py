@@ -78,19 +78,19 @@ def load_contacts(input_file="apps/OUTC/jc_active_members.csv"):
                     club=clubs_id,
                 )
         # Now do extra accounts not from MDB
-        outc_id = db(db.clubs.name == 'OUTC').select().first().id
+        outc_id = db(db.clubs.name == "OUTC").select().first().id
         for account in [
-                ('BLUES', 'Blues', outc_id),
-                ('JUNIORS', 'Juniors', outc_id),
-                ('SUBL', 'Subsidy L', outc_id),
-                ('TOUR', 'Tournaments', outc_id),
-                ('ZVIS', 'Visitors', outc_id)
-                ]:
+            ("BLUES", "Blues", outc_id),
+            ("JUNIORS", "Juniors", outc_id),
+            ("SUBL", "Subsidy L", outc_id),
+            ("TOUR", "Tournaments", outc_id),
+            ("ZVIS", "Visitors", outc_id),
+        ]:
             db.contacts.insert(
-                    sageid=account[0],
-                    name=account[1],
-                    club=outc_id,
-                    )
+                sageid=account[0],
+                name=account[1],
+                club=outc_id,
+            )
 
     db.commit()
 
@@ -132,6 +132,7 @@ def load_all_tables():
     load_contacts()
     load_coa()
 
+
 def reset_tables():
     clean_all_tables()
     load_all_tables()
@@ -169,7 +170,7 @@ def import_all_tables(csv_file):
 
 
 def input_row_to_dict(row):
-    """covert row to r and return r
+    """convert row to r and return r
 
     r is just a dict, used in form and when writing csv
     """
@@ -180,11 +181,11 @@ def input_row_to_dict(row):
     r["InvoiceNumber"] = row.invoice_number
     r["InvoiceDate"] = row.invoice_date
     r["DueDate"] = row.due_date
-    if row.extra_description:
+    if row.description_text:
         r["Description"] = ", ".join(
             [
                 row.account.description,
-                row.extra_description,
+                row.description_text,
             ]
         )
     else:

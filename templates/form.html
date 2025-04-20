@@ -85,13 +85,7 @@
 	    </td>
 	  -->
 	  <td>
-	    [[
-	    if row.extra_description:
-		    = ", ".join([row.account.description, row.extra_description])
-	    else:
-		    = row.account.description
-	    pass
-	    ]]
+	    [[ =row.account.description ]]
 	  </td>
 	  <td>
 	    [[ =row.quantity ]]

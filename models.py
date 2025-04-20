@@ -11,15 +11,15 @@ from decimal import Decimal
 db.define_table(
     "clubs",
     Field("name", length=8, unique=True),
-    format='%(name)s',
+    format="%(name)s",
 )
 
 db.define_table(
     "contacts",
-    Field("sageid", length=9, unique=True),
-    Field("name", length=25),
-    Field("club", 'reference clubs'),
-    format='%(name)s',
+    Field("sageid", length=9, required=True, unique=True,),
+    Field("name", length=25, required=True, unique=True,),
+    Field("club", "reference clubs", required=True,),
+    format="%(name)s",
 )
 
 db.define_table(
@@ -27,9 +27,8 @@ db.define_table(
     Field("code", length=6, unique=True),
     Field("description", length=33),
     Field("type", length=20),
-    Field("tax_code", length=6, 
-          default='No VAT'),
-    format='%(description)s',
+    Field("tax_code", length=6, default="No VAT"),
+    format="%(description)s",
 )
 
 db.define_table(
@@ -42,20 +41,25 @@ db.define_table(
         "account",
         db.coa,
     ),
-    Field("invoice_number", length=12),
+    Field("invoice_number", length=12, default=""),
     Field(
         "invoice_date",
         "date",
-        requires=IS_DATE(),
-        default=today,
+        requires=IS_EMPTY_OR(IS_DATE()),
+        default="",
     ),
     Field(
         "due_date",
         "date",
-        requires=IS_DATE(),
-        default=today + timedelta(7),
+        requires=IS_EMPTY_OR(IS_DATE()),
+        default="",
     ),
-    Field("extra_description", length=20),
+    Field(
+        "description_datetime",
+        "datetime",
+        requires=IS_EMPTY_OR(IS_DATETIME()),
+    ),
+    Field("description_text", length=20),
     Field("quantity", "integer", default=1),
     Field(
         "price",
