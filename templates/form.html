@@ -13,23 +13,22 @@
     <div class='buttons'>
       <a id='download_button'
 	 class='button is-link' 
-	 href='[[=URL('save_csv')]]'>
+	 href='[[=URL('batch_records_export')]]'>
 	Download
       </a>
       <!--
-      <a id='upload_button'
-	 class='button is-link'
-	 >
-	 Upload
-      </a>
-      -->
-      <!--
-	<a id='clear_rows'
-	   class='button is-danger'
-	   href='[[=URL('index','clear')]]'>
-	  Clear all rows below!
+	<a id='upload_button'
+	class='button is-link'
+	>
+	Upload
 	</a>
       -->
+      <a id='clear_rows'
+	 href='[[=URL('clear')]]' 
+	 onclick="return confirmLinkClick()"
+	 class='button is-danger'>
+	Clear all rows below!
+      </a>
     </div>
 
 

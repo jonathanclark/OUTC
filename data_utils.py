@@ -72,7 +72,7 @@ def load_contacts(input_file="apps/OUTC/jc_active_members.csv"):
             # breakpoint()
             if member_types[row[3]] in ["OUTC", "Unicorn"]:
                 clubs_id = db(db.clubs.name == member_types[row[3]]).select().first().id
-                db.contacts.insert(
+                db.contacts.update_or_insert(db.contacts.sageid == row[0],
                     sageid=row[0],
                     name=" ".join([row[1], row[2]]),
                     club=clubs_id,
@@ -86,7 +86,7 @@ def load_contacts(input_file="apps/OUTC/jc_active_members.csv"):
             ("TOUR", "Tournaments", outc_id),
             ("ZVIS", "Visitors", outc_id),
         ]:
-            db.contacts.insert(
+            db.contacts.update_or_insert(db.contacts.sageid==account[0],
                 sageid=account[0],
                 name=account[1],
                 club=outc_id,
@@ -107,7 +107,7 @@ def load_coa(input_file="apps/OUTC/ChartOfAccountsOTC.csv"):
         for row in reader:
             # breakpoint()
             # print(row)
-            key = db.coa.insert(
+            key = db.coa.update_or_insert(db.coa.code==row[0],
                 code=row[0],
                 description=row[1],
                 type=row[2],

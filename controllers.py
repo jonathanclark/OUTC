@@ -48,6 +48,22 @@ def delete(record=None):
     redirect(URL("index"))
 
 
+@action("clear", method=["GET", "POST"])
+@action.uses(
+    session,
+    db,
+    flash,
+)
+def clear():
+    #breakpoint()
+    query = db.input_rows.down_loaded == False
+    print(f"Number of recs before = {db(query).count()}")
+    db(query).update(down_loaded=True)
+    print(f"Number of recs after = {db(query).count()}")
+    db.commit()
+    redirect(URL("index"))
+
+
 @action("edit/<record_id:int>", method=["GET", "POST"])
 @action.uses(
     "edit_form.html",
@@ -89,6 +105,7 @@ def edit(record_id):
     ),
 )
 def index(action=None):
+    #breakpoint()
     message = ""
     # make the form
     db.input_rows.member.requires = IS_IN_DB(
@@ -112,27 +129,17 @@ def index(action=None):
 
     # adjust account.description field to hold extra text fields - description_date_time, _text
     for r in rows:
-        prefix = suffix = ''
+        prefix = suffix = ""
         if r.description_datetime:
-            prefix = str(r.description_datetime)+':'
+            prefix = str(r.description_datetime) + ":"
         if r.description_text:
-            suffix = ' - ' + r.description_text
+            suffix = " - " + r.description_text
         total_description = " ".join([prefix, r.account.description, suffix])
         r.account.description = total_description
 
-    if action == "clear":
-        flash.set(
-            "The Clear all rows button doesn't do anything yet",
-            _class="error",
-            sanitize=True,
-        )
-
     if form.accepted:
         flash.set("Record added", _class="error", sanitize=True)
-        pass
-    print("here come rows")
-    for r in rows:
-        print(r)
+
     return dict(form=form, rows=rows, message=message)
 
 
@@ -196,18 +203,22 @@ def contacts(path=None):
     return dict(grid=grid)
 
 
-@action("save_csv", method=["GET"])
+@action("batch_records_export", method=["GET"])
 @action.uses(
+    "download.html",
     db,
     session,
+    flash,
+    Inject(response=response),
 )
-def save_csv():
+def batch_records_export():
     stream = StringIO()
     content_type = "text/csv"
     filename = "batch_input.csv"
     response.headers["Content-Type"] = content_type
     response.headers["Content-disposition"] = f'attachment; filename="{filename}"'
-    rows = db(db.input_rows.down_loaded == False).select(orderby=~db.input_rows.id)
+    query = db.input_rows.down_loaded == False
+    rows = db(query).select(orderby=~db.input_rows.id)
     rows_dict = [input_row_to_dict(r) for r in rows]
     field_names = [
         "ContactName",
@@ -222,6 +233,7 @@ def save_csv():
         "TaxType",
         "TrackingName1",
         "TrackingOption1",
+        "BrandingTheme",
     ]
 
     writer = csv.DictWriter(stream, fieldnames=field_names)
@@ -229,7 +241,7 @@ def save_csv():
     for rd in rows_dict:
         # print(rd)
         writer.writerow(rd)
-    return XML(stream.getvalue())
+    return locals()
 
 
 ##### grid doesn't look best ########
