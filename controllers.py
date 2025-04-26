@@ -123,6 +123,9 @@ def index(action=None):
     db.input_rows.due_date.readable = db.input_rows.due_date.writable = False
 
     form = Form(db.input_rows, keep_values=True)
+    # add class = filterable to select fields, ready for js adjustments
+    for field in form.structure.find('select'):
+        field['_class'] = (field['_class'] or '') + ' filterable'
 
     # make the rows
     rows = db(db.input_rows.down_loaded == False).select(orderby=~db.input_rows.id)
