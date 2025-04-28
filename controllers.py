@@ -55,7 +55,7 @@ def delete(record=None):
     flash,
 )
 def clear():
-    #breakpoint()
+    # breakpoint()
     query = db.input_rows.down_loaded == False
     print(f"Number of recs before = {db(query).count()}")
     db(query).update(down_loaded=True)
@@ -105,7 +105,7 @@ def edit(record_id):
     ),
 )
 def index(action=None):
-    #breakpoint()
+    # breakpoint()
     message = ""
     # make the form
     db.input_rows.member.requires = IS_IN_DB(
@@ -124,26 +124,30 @@ def index(action=None):
 
     form = Form(db.input_rows, keep_values=True)
     # add class = filterable to select fields, ready for js adjustments
-    for field in form.structure.find('select'):
-        field['_class'] = (field['_class'] or '') + ' filterable'
+    for field in form.structure.find("select"):
+        field["_class"] = (field["_class"] or "") + " filterable"
 
     # make the rows
     rows = db(db.input_rows.down_loaded == False).select(orderby=~db.input_rows.id)
 
     # adjust account.description field to hold extra text fields - description_date_time, _text
-    for r in rows:
-        prefix = suffix = ""
-        if r.description_datetime:
-            prefix = str(r.description_datetime) + ":"
-        if r.description_text:
-            suffix = " - " + r.description_text
-        total_description = " ".join([prefix, r.account.description, suffix])
-        r.account.description = total_description
+    for row in rows:
+        combine_description_fields(row)
 
     if form.accepted:
         flash.set("Record added", _class="error", sanitize=True)
 
     return dict(form=form, rows=rows, message=message)
+
+
+def combine_description_fields(row):
+    prefix = suffix = ""
+    if row.description_datetime:
+        prefix = str(row.description_datetime) + ":"
+    if row.description_text:
+        suffix = " - " + row.description_text
+    total_description = " ".join([prefix, row.account.description, suffix])
+    row.account.description = total_description
 
 
 @action("coa", method=["POST", "GET"])
@@ -222,7 +226,10 @@ def batch_records_export():
     response.headers["Content-disposition"] = f'attachment; filename="{filename}"'
     query = db.input_rows.down_loaded == False
     rows = db(query).select(orderby=~db.input_rows.id)
-    rows_dict = [input_row_to_dict(r) for r in rows]
+    rows_dict = []
+    for row in rows:
+        combine_description_fields(row)
+        rows_dict.append(input_row_to_dict(row))
     field_names = [
         "ContactName",
         "Reference",
@@ -242,7 +249,6 @@ def batch_records_export():
     writer = csv.DictWriter(stream, fieldnames=field_names)
     writer.writeheader()
     for rd in rows_dict:
-        # print(rd)
         writer.writerow(rd)
     return locals()
 

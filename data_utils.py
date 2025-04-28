@@ -181,15 +181,7 @@ def input_row_to_dict(row):
     r["InvoiceNumber"] = row.invoice_number
     r["InvoiceDate"] = row.invoice_date
     r["DueDate"] = row.due_date
-    if row.description_text:
-        r["Description"] = ", ".join(
-            [
-                row.account.description,
-                row.description_text,
-            ]
-        )
-    else:
-        r["Description"] = row.account.description
+    r["Description"] = row.account.description
     r["Quantity"] = row.quantity
     r["UnitAmount"] = row.price
     r["AccountCode"] = row.account.code
